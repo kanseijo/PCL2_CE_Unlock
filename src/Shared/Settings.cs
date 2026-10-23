@@ -38,7 +38,7 @@ public sealed class SettingsLoadResult
 }
 
 /// <summary>
-/// 与程序同目录的设置文件：<c>pcl-ce-unlock.settings.json</c>。
+/// 与程序同目录的设置文件：<c>PCL2_CE_Unlock.settings.json</c>。
 /// <para>
 /// 只保存<b>文件名</b>（不保存路径），并附一个校验码用于发现手工篡改。
 /// 校验码只能"发现"篡改（密钥就在程序里），真正的安全保证来自
@@ -47,7 +47,7 @@ public sealed class SettingsLoadResult
 /// </summary>
 public static class Settings
 {
-    public const string FileName = "pcl-ce-unlock.settings.json";
+    public const string FileName = "PCL2_CE_Unlock.settings.json";
 
     private const string Salt = "PclCeUnlock.Settings.v1";
 

@@ -2,7 +2,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net7.0</TargetFramework>
-    <AssemblyName>PclCeUnlock</AssemblyName>
+    <AssemblyName>PCL2_CE_Unlock</AssemblyName>
     <RootNamespace>PclCeUnlock.Tool</RootNamespace>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
@@ -10,8 +10,8 @@
     <InvariantGlobalization>true</InvariantGlobalization>
     <DebugType>none</DebugType>
     <Deterministic>true</Deterministic>
-    <AssemblyTitle>PCL-CE 解锁工具</AssemblyTitle>
-    <Version>1.0.0</Version>
+    <AssemblyTitle>PCL2_CE 解锁工具（第三方·非官方）</AssemblyTitle>
+    <Version>1.3.0</Version>
   </PropertyGroup>
   <ItemGroup>
     <!-- 与注入版共用同一份解锁目标定义 -->

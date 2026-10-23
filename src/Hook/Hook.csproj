@@ -1,14 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-    <AssemblyName>PCLUnlockHook</AssemblyName>
+    <AssemblyName>PCL2_CE_Unlock.Hook</AssemblyName>
     <RootNamespace>PclCeUnlock.Injection</RootNamespace>
     <LangVersion>latest</LangVersion>
     <Nullable>disable</Nullable>
     <DebugType>none</DebugType>
     <Deterministic>true</Deterministic>
-    <!-- ModuleInitializer 用于在 JIT 前注册程序集解析器，属于刻意用法 -->
-    <NoWarn>$(NoWarn);CA2255</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <!-- 与 Tool 共用同一份解锁目标定义，避免两端漂移 -->

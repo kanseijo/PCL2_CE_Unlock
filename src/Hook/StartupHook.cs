@@ -83,7 +83,7 @@ namespace PclCeUnlock.Injection
             {
                 try
                 {
-                    File.AppendAllText(Path.Combine(dir, "PCL解锁注入日志.txt"), text);
+                    File.AppendAllText(Path.Combine(dir, "PCL2_CE_Unlock.log"), text);
                     return;
                 }
                 catch

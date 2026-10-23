@@ -25,14 +25,14 @@ jobs:
         shell: pwsh
         run: |
           Copy-Item README.md, THIRD-PARTY-NOTICES.txt -Destination build-out
-          Compress-Archive -Path build-out\* -DestinationPath PCL-CE-unlock-tool.zip -Force
+          Compress-Archive -Path build-out\* -DestinationPath PCL2_CE_Unlock.zip -Force
           Get-ChildItem build-out -Recurse -File | Select-Object FullName, Length | Format-Table
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: PCL-CE-unlock-tool
-          path: PCL-CE-unlock-tool.zip
+          name: PCL2_CE_Unlock
+          path: PCL2_CE_Unlock.zip
           if-no-files-found: error
 
       - name: Create release on tag
@@ -41,7 +41,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create ${{ github.ref_name }} PCL-CE-unlock-tool.zip `
+          gh release create ${{ github.ref_name }} PCL2_CE_Unlock.zip `
             --title "${{ github.ref_name }}" `
-            --notes "构建产物（不含 PCL 任何代码/二进制）：PclCeUnlock + hook" `
+            --notes "构建产物（不含 PCL 任何代码/二进制）：PCL2_CE_Unlock + hook" `
             --verify-tag

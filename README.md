@@ -1,4 +1,4 @@
-# pclce-unlock — PCL-CE 解锁工具（第三方 · 非官方）
+# PCL2_CE_Unlock — PCL2_CE 解锁工具（第三方 · 非官方）
 
 > **非官方第三方工具**，与 [PCL 社区版](https://github.com/PCL-Community/PCL-CE)、PCL-Community、龙腾猫跃均无关联，不代表其立场。
 
@@ -55,8 +55,8 @@ IL 改写必须把方法体**收缩到精确长度**（tiny 重写头字节、fa
 <你的 PCL 目录>\
 ├─ PCL2_CE_Release_x64.exe    ← 官方启动器（名字随意，可中文、可改名）
 ├─ ... PCL 自己的文件 ...
-└─ 解锁工具\                  ← 本工具放在这里
-    ├─ PclCeUnlock.exe
+└─ PCL2_CE_Unlock\             ← 本工具放在这里
+    ├─ PCL2_CE_Unlock.exe
     ├─ PclCeUnlock.dll / .deps.json / .runtimeconfig.json
     ├─ dnlib.dll
     └─ hook\                  ← 注入组件（勿单独移动）
@@ -79,11 +79,11 @@ IL 改写必须把方法体**收缩到精确长度**（tiny 重写头字节、fa
 ### 3.3 命令行
 
 ```
-PclCeUnlock --inject    用已记住的启动器注入启动
-PclCeUnlock --patch     打补丁（替换原启动器 + 备份）
-PclCeUnlock --restore   从备份还原
-PclCeUnlock --shortcut  创建桌面快捷方式
-PclCeUnlock --status    打印配置与解锁目标
+PCL2_CE_Unlock --inject    用已记住的启动器注入启动
+PCL2_CE_Unlock --patch     打补丁（替换原启动器 + 备份）
+PCL2_CE_Unlock --restore   从备份还原
+PCL2_CE_Unlock --shortcut  创建桌面快捷方式
+PCL2_CE_Unlock --status    打印配置与解锁目标
 ```
 
 ### 3.4 安全与可逆
@@ -105,10 +105,10 @@ PclCeUnlock --status    打印配置与解锁目标
 pwsh -File build.ps1    # Windows
 ```
 
-产物：补丁工具 `PclCeUnlock.exe`（win-x64）+ `hook/PCLUnlockHook.dll`。
+产物：主程序 `PCL2_CE_Unlock.exe`（win-x64）+ `hook/PCL2_CE_Unlock.Hook.dll`。
 
 仓库自带 GitHub Actions（`.github/workflows/build.yml`）：推送到 `main` 会在 Windows runner 上构建并上传
-`PCL-CE-unlock-tool.zip` 作为 Artifact；打 `v*` 标签会自动创建 Release 并附上该 zip。
+`PCL2_CE_Unlock.zip` 作为 Artifact；打 `v*` 标签会自动创建 Release 并附上该 zip。
 **仓库本身不存放任何二进制**。
 
 运行需要 **.NET Desktop Runtime**（能运行 PCL-CE 说明已具备）。

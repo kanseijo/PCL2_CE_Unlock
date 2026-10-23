@@ -1,13 +1,14 @@
 # 构建产物
 bin/
 obj/
+PCL2_CE_Unlock/
 build-out/
 dist/
 winout/
 
 # 运行期文件（不进入仓库）
-pcl-ce-unlock.settings.json
-PCL解锁注入日志.txt
+PCL2_CE_Unlock.settings.json
+PCL2_CE_Unlock.log
 *.bak
 *.pclce-new
 

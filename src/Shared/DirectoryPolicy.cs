@@ -33,8 +33,8 @@ public sealed class PathVerdict
 /// ├─ PCL2_CE_Release_x64.exe     ← 官方启动器（名字随意）
 /// ├─ ... PCL 自己的文件 ...
 /// └─ 解锁工具\                    ← 本工具与 hook 都放这里，不和 PCL 混在一起
-///     ├─ PclCeUnlock.exe
-///     └─ hook\PCLUnlockHook.dll
+///     ├─ PCL2_CE_Unlock.exe
+///     └─ hook\PCL2_CE_Unlock.Hook.dll
 /// </code>
 /// </para>
 /// <para>

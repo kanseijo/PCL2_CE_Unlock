@@ -3,7 +3,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-OUT="${1:-dist}"
+OUT="${1:-PCL2_CE_Unlock}"
 rm -rf "$OUT"
 mkdir -p "$OUT/hook"
 
@@ -18,5 +18,5 @@ rm -f "$OUT"/hook/*.pdb 2>/dev/null || true
 
 echo
 echo "构建完成：$OUT"
-echo "  - $OUT/PclCeUnlock.exe        工具（自动检测/选择启动器、就地打补丁、注入启动、备份还原）"
-echo "  - $OUT/hook/PCLUnlockHook.dll 注入版组件"
+echo "  - $OUT/PCL2_CE_Unlock.exe            主程序（检测/选择启动器、就地打补丁、注入启动、备份还原）"
+echo "  - $OUT/hook/PCL2_CE_Unlock.Hook.dll  注入组件"
