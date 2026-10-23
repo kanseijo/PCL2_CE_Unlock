@@ -44,7 +44,7 @@ public static class Program
         // 2) 没有可用设置 → 自动检测
         if (_launcherPath is null) AutoSelect();
 
-        // 3) 命令行开关（便于快捷方式直接"注入启动"或"生成补丁版"）
+        // 3) 命令行开关（便于快捷方式直接"注入启动"或"打补丁"）
         var cli = args.Length > 0 ? args[0].Trim().ToLowerInvariant() : null;
         if (cli is "--inject" or "-i")
         {

@@ -157,15 +157,22 @@ public static class LauncherProbe
         return new LauncherInfo(path, size, sha, version, official, patched);
     }
 
-    /// <summary>粗略判断是否已经打过本工具的补丁（用于提示，不作为安全判定）。</summary>
+    /// <summary>
+    /// 粗略判断是否已经打过补丁（仅用于提示，不作为安全判定；精确判定见 PatchEngine.CountApplied）。
+    /// <para>
+    /// 当前补丁把方法体收缩为精确长度：tiny 头字节 = (codeSize &lt;&lt; 2) | 0x02，
+    /// 因此 <c>CanCreateOtherProfile</c> 为 <c>0A 17 2A</c>、<c>IsRestricted</c> 为 <c>0A 16 2A</c>。
+    /// 同时兼容 v1.2.0 及更早的“原长度 + nop 填充”格式（<c>9A 17 2A</c>），便于提示用户升级旧补丁。
+    /// </para>
+    /// </summary>
     public static bool LooksPatched(string path)
     {
         try
         {
             var bytes = File.ReadAllBytes(path);
-            // 补丁后的 CanCreateOtherProfile 方法体头为 tiny(0x9a=(38<<2)|2) + 17 2A 00...
-            var pattern = new byte[] { 0x9A, 0x17, 0x2A, 0x00, 0x00 };
-            return IndexOf(bytes, pattern) >= 0;
+            return IndexOf(bytes, new byte[] { 0x0A, 0x17, 0x2A }) >= 0   // 当前格式（返回 true）
+                   || IndexOf(bytes, new byte[] { 0x0A, 0x16, 0x2A }) >= 0 // 当前格式（返回 false）
+                   || IndexOf(bytes, new byte[] { 0x9A, 0x17, 0x2A }) >= 0; // 旧格式（v1.2.0 及更早）
         }
         catch
         {
