@@ -107,6 +107,10 @@ pwsh -File build.ps1    # Windows
 
 产物：补丁工具 `PclCeUnlock.exe`（win-x64）+ `hook/PCLUnlockHook.dll`。
 
+仓库自带 GitHub Actions（`.github/workflows/build.yml`）：推送到 `main` 会在 Windows runner 上构建并上传
+`PCL-CE-unlock-tool.zip` 作为 Artifact；打 `v*` 标签会自动创建 Release 并附上该 zip。
+**仓库本身不存放任何二进制**。
+
 运行需要 **.NET Desktop Runtime**（能运行 PCL-CE 说明已具备）。
 
 ---

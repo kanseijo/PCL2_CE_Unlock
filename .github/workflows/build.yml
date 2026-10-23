@@ -1,0 +1,47 @@
+name: build
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '7.0.x'
+
+      - name: Build (tool + injection hook)
+        run: pwsh -File build.ps1 build-out
+
+      - name: Assemble package
+        shell: pwsh
+        run: |
+          Copy-Item README.md, THIRD-PARTY-NOTICES.txt -Destination build-out
+          Compress-Archive -Path build-out\* -DestinationPath PCL-CE-unlock-tool.zip -Force
+          Get-ChildItem build-out -Recurse -File | Select-Object FullName, Length | Format-Table
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PCL-CE-unlock-tool
+          path: PCL-CE-unlock-tool.zip
+          if-no-files-found: error
+
+      - name: Create release on tag
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create ${{ github.ref_name }} PCL-CE-unlock-tool.zip `
+            --title "${{ github.ref_name }}" `
+            --notes "构建产物（不含 PCL 任何代码/二进制）：PclCeUnlock + hook" `
+            --verify-tag
