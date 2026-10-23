@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <AssemblyName>PCLUnlockHook</AssemblyName>
+    <RootNamespace>PclCeUnlock.Injection</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <DebugType>none</DebugType>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- 与 Tool 共用同一份解锁目标定义，避免两端漂移 -->
+    <Compile Include="../Shared/UnlockTargets.cs" Link="Shared/UnlockTargets.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MonoMod.RuntimeDetour" Version="25.3.6" />
+  </ItemGroup>
+</Project>

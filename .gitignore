@@ -1,0 +1,17 @@
+# 构建产物
+bin/
+obj/
+build-out/
+dist/
+winout/
+
+# 运行期文件（不进入仓库）
+pcl-ce-unlock.settings.json
+PCL解锁注入日志.txt
+*.bak
+*.pclce-new
+
+# IDE
+.vs/
+.idea/
+*.user
