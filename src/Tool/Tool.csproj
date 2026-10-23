@@ -11,7 +11,7 @@
     <DebugType>none</DebugType>
     <Deterministic>true</Deterministic>
     <AssemblyTitle>PCL2_CE 解锁工具（第三方·非官方）</AssemblyTitle>
-    <Version>1.3.1</Version>
+    <Version>1.3.2</Version>
   </PropertyGroup>
   <ItemGroup>
     <!-- 与注入版共用同一份解锁目标定义 -->

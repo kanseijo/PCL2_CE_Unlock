@@ -10,14 +10,13 @@ namespace PclCeUnlock.Shared;
 /// <summary>启动器探测结果。</summary>
 public sealed class LauncherInfo
 {
-    public LauncherInfo(string path, long size, string sha256, string? version, bool officialHash, bool looksPatched)
+    public LauncherInfo(string path, long size, string sha256, string? version, bool officialHash)
     {
         Path = path;
         Size = size;
         Sha256 = sha256;
         Version = version;
         OfficialHash = officialHash;
-        LooksPatched = looksPatched;
     }
 
     public string Path { get; }
@@ -31,12 +30,9 @@ public sealed class LauncherInfo
     /// <summary>是否命中已知官方发布包哈希（v2.15.1）。</summary>
     public bool OfficialHash { get; }
 
-    /// <summary>是否已经是本工具的补丁版（关键方法 IL 已被改写）。</summary>
-    public bool LooksPatched { get; }
-
     public override string ToString() =>
         $"{FileName}  ({(Version is null ? "版本未知" : "v" + Version)}, {Size / 1024 / 1024} MB" +
-        $"{(OfficialHash ? ", 官方哈希匹配" : "")}{(LooksPatched ? ", 已打过补丁" : "")})";
+        $"{(OfficialHash ? ", 官方哈希匹配" : "")})";
 }
 
 /// <summary>
@@ -153,31 +149,9 @@ public static class LauncherProbe
         }
 
         var official = KnownOfficialSha256.Any(x => string.Equals(x, sha, StringComparison.OrdinalIgnoreCase));
-        var patched = LooksPatched(path);
-        return new LauncherInfo(path, size, sha, version, official, patched);
-    }
-
-    /// <summary>
-    /// 粗略判断是否已经打过补丁（仅用于提示，不作为安全判定；精确判定见 PatchEngine.CountApplied）。
-    /// <para>
-    /// 当前补丁把方法体收缩为精确长度：tiny 头字节 = (codeSize &lt;&lt; 2) | 0x02，
-    /// 因此 <c>CanCreateOtherProfile</c> 为 <c>0A 17 2A</c>、<c>IsRestricted</c> 为 <c>0A 16 2A</c>。
-    /// 同时兼容 v1.2.0 及更早的“原长度 + nop 填充”格式（<c>9A 17 2A</c>），便于提示用户升级旧补丁。
-    /// </para>
-    /// </summary>
-    public static bool LooksPatched(string path)
-    {
-        try
-        {
-            var bytes = File.ReadAllBytes(path);
-            return IndexOf(bytes, new byte[] { 0x0A, 0x17, 0x2A }) >= 0   // 当前格式（返回 true）
-                   || IndexOf(bytes, new byte[] { 0x0A, 0x16, 0x2A }) >= 0 // 当前格式（返回 false）
-                   || IndexOf(bytes, new byte[] { 0x9A, 0x17, 0x2A }) >= 0; // 旧格式（v1.2.0 及更早）
-        }
-        catch
-        {
-            return false;
-        }
+        // 注意：这里<b>不再</b>用字节特征猜"是否已打补丁"——3 字节特征在 20MB+ 的二进制里必然误命中。
+        // 精确判定由 Tool 侧 PatchEngine.CountApplied 读取 5 个目标方法体完成。
+        return new LauncherInfo(path, size, sha, version, official);
     }
 
     public static string ComputeSha256(string path)

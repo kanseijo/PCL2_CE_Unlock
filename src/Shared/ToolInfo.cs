@@ -5,7 +5,7 @@ namespace PclCeUnlock.Shared;
 /// <summary>工具自身信息。</summary>
 public static class ToolInfo
 {
-    public const string Version = "1.3.1";
+    public const string Version = "1.3.2";
 
     public const string HookFileName = "PCL2_CE_Unlock.Hook.dll";
 

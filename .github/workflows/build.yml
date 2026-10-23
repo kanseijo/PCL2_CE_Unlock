@@ -49,8 +49,13 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # 发版说明：优先用 docs/release-notes/<tag>.md，缺失时回落到 RELEASE_NOTES.md
+          $tag = $env:GITHUB_REF_NAME
+          $tagNotes = "docs/release-notes/$tag.md"
+          $notesFile = if (Test-Path $tagNotes) { $tagNotes } else { "RELEASE_NOTES.md" }
+          Write-Host "使用发版说明：$notesFile"
           Get-FileHash PCL2_CE_Unlock.zip -Algorithm SHA256 | ForEach-Object { "$($_.Hash.ToLower())  PCL2_CE_Unlock.zip" } | Set-Content PCL2_CE_Unlock.zip.sha256
-          gh release create ${{ github.ref_name }} PCL2_CE_Unlock.zip PCL2_CE_Unlock.zip.sha256 `
-            --title "${{ github.ref_name }}" `
-            --notes "构建产物（不含 PCL 任何代码/二进制）：PCL2_CE_Unlock + hook" `
+          gh release create $tag PCL2_CE_Unlock.zip PCL2_CE_Unlock.zip.sha256 `
+            --title "PCL2_CE_Unlock $tag" `
+            --notes-file $notesFile `
             --verify-tag

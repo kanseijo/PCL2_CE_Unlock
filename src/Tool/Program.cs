@@ -11,6 +11,31 @@ public static class Program
 {
     private static string? _launcherPath;
 
+    // 精确"是否已打补丁"判定带缓存：读方法体需要解析整个单文件包（~200ms），
+    // 菜单每次刷新都调用，缓存可避免卡顿；文件被替换后 key 变化会自动失效。
+    private static (int Applied, int Total)? _patchState;
+    private static string _patchStateKey = string.Empty;
+
+    private static (int Applied, int Total) PatchState(string path)
+    {
+        string key;
+        try
+        {
+            var fi = new FileInfo(path);
+            key = path + "|" + fi.Length + "|" + fi.LastWriteTimeUtc.Ticks;
+        }
+        catch
+        {
+            return (0, UnlockTargets.Patches.Count);
+        }
+
+        if (_patchState is { } cached && _patchStateKey == key) return cached;
+        var value = PatchEngine.CountApplied(path);
+        _patchState = value;
+        _patchStateKey = key;
+        return value;
+    }
+
     public static int Main(string[] args)
     {
         Console.OutputEncoding = System.Text.Encoding.UTF8;
@@ -73,11 +98,11 @@ public static class Program
         else if (cli is "--restore" or "-r")
         {
             if (_launcherPath is null) Console.WriteLine("命令行模式：当前没有可用的启动器选择，转入交互模式。");
-            else { DoRestore(); return 0; }
+            else { DoRestore(interactive: false); return 0; }
         }
         else if (cli is "--shortcut")
         {
-            DoShortcut();
+            DoShortcut(interactive: false);
             return 0;
         }
         else if (cli is "--status" or "-s")
@@ -240,8 +265,11 @@ public static class Program
         if (!info.OfficialHash)
             Warn("这个文件不是已知的 PCL-CE v2.15.1 官方发布包（哈希不匹配）。本工具只保证对 v2.15.1 的识别，" +
                  "其它版本可能因方法改名而失效。");
-        if (info.LooksPatched)
-            Warn("这个文件看起来已经打过本工具的补丁，再次打补丁不会重复生效。");
+        var (applied, total) = PatchState(_launcherPath!);
+        if (applied == total)
+            Warn($"这个文件已经打过补丁（{applied}/{total} 个目标已改写）。要重打请先用 5) 从原版备份恢复。");
+        else if (applied > 0)
+            Warn($"这个文件处于部分补丁状态（{applied}/{total}），建议先用 5) 恢复原版再操作。");
     }
 
     private static void Save(string path)
@@ -263,7 +291,7 @@ public static class Program
         if (!RequireLauncher()) return;
         var source = _launcherPath!;
 
-        var (applied, total) = PatchEngine.CountApplied(source);
+        var (applied, total) = PatchState(source);
         if (applied == total)
         {
             Console.WriteLine($"当前文件已经打过补丁（{applied}/{total} 个目标均已改写），无需重复打。");
@@ -287,6 +315,7 @@ public static class Program
         try
         {
             var backup = PatchInstaller.Apply(source, Console.Out);
+            _patchState = null; _patchStateKey = string.Empty;   // 失效缓存
             Console.WriteLine();
             Console.WriteLine("已完成：原文件已被补丁版替换。");
             Console.WriteLine("  原版备份：" + Path.GetFileName(backup) + "   ← 需要还原时用它");
@@ -302,7 +331,7 @@ public static class Program
         if (interactive) WaitKey();
     }
 
-    private static void DoRestore()
+    private static void DoRestore(bool interactive = true)
     {
         if (!RequireLauncher()) return;
         var target = _launcherPath!;
@@ -332,16 +361,17 @@ public static class Program
             }
 
             PatchInstaller.Restore(target, Console.Out);
+            _patchState = null; _patchStateKey = string.Empty;   // 失效缓存
         }
         catch (Exception ex)
         {
             Warn("恢复失败：" + ex.Message);
         }
 
-        WaitKey();
+        if (interactive) WaitKey();
     }
 
-    private static void DoShortcut()
+    private static void DoShortcut(bool interactive = true)
     {
         if (!OperatingSystem.IsWindows())
         {
@@ -362,7 +392,7 @@ public static class Program
             Warn("创建快捷方式失败：" + ex.Message);
         }
 
-        WaitKey();
+        if (interactive) WaitKey();
     }
 
     private static void DoInject(bool interactive = true)
@@ -376,7 +406,7 @@ public static class Program
             return;
         }
 
-        var (injected, injectedTotal) = PatchEngine.CountApplied(_launcherPath!);
+        var (injected, injectedTotal) = PatchState(_launcherPath!);
         if (injected == injectedTotal)
             Warn("当前启动器已经是补丁版，注入模式不再需要（如需原版请用菜单 5 恢复；"
                  + "注入模式应配合官方原版使用）。");
@@ -435,9 +465,18 @@ public static class Program
 
     private static void WaitKey()
     {
+        // 命令行/管道调用时 stdin 被重定向，ReadKey 会抛 InvalidOperationException → 直接跳过
+        if (Console.IsInputRedirected) return;
         Console.WriteLine();
         Console.WriteLine("按任意键继续...");
-        Console.ReadKey(true);
+        try
+        {
+            Console.ReadKey(true);
+        }
+        catch (InvalidOperationException)
+        {
+            // 无控制台输入时忽略
+        }
     }
 
     private static void PrintHelp()
@@ -481,7 +520,11 @@ public static class Program
     private static string Describe(string path)
     {
         var info = LauncherProbe.Inspect(path);
-        return info.ToString();
+        var (applied, total) = PatchState(path);
+        var state = applied == total ? "，已打过补丁"
+            : applied > 0 ? $"，补丁状态混杂({applied}/{total})"
+            : string.Empty;
+        return info + state;
     }
 
     private static void Info(string message) => Console.WriteLine("[信息] " + message);
