@@ -22,14 +22,19 @@ jobs:
           dotnet-version: '7.0.x'
 
       - name: Build (tool + injection hook)
-        run: pwsh -File build.ps1 build-out
+        run: pwsh -File build.ps1 PCL2_CE_Unlock
 
       - name: Assemble package
         shell: pwsh
         run: |
-          Copy-Item README.md, THIRD-PARTY-NOTICES.txt -Destination build-out
-          Compress-Archive -Path build-out\* -DestinationPath PCL2_CE_Unlock.zip -Force
-          Get-ChildItem build-out -Recurse -File | Select-Object FullName, Length | Format-Table
+          # 说明：用 -Path <目录> 而不是 <目录>\*，这样压缩包内会保留顶层文件夹 PCL2_CE_Unlock/，
+          # 用户解压后直接得到可用的文件夹，不必手动新建（不同解压工具行为一致）。
+          Copy-Item README.md, THIRD-PARTY-NOTICES.txt -Destination PCL2_CE_Unlock
+          Compress-Archive -Path PCL2_CE_Unlock -DestinationPath PCL2_CE_Unlock.zip -Force
+          Write-Host '--- 压缩包内容预览（应含顶层 PCL2_CE_Unlock/ 目录）---'
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          [System.IO.Compression.ZipFile]::OpenRead((Resolve-Path PCL2_CE_Unlock.zip)).Entries |
+            Select-Object -First 12 -ExpandProperty FullName
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
